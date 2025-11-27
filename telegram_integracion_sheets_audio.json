@@ -1,0 +1,1706 @@
+{
+  "name": "telegram integracion sheets/audio",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -2620,
+        420
+      ],
+      "id": "f2f16b0e-25e8-4a34-b889-807dd1c8791c",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.currentDate }}",
+        "format": "custom",
+        "customFormat": "DDDD",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -2280,
+        420
+      ],
+      "id": "7214f631-2f52-4c52-b108-7b0000b060e4",
+      "name": "Date & Time2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=mensaje: {{ $('Telegram Trigger1').item.json.message.text }}\naudio: {{ $json.text }}\nfecha: {{ $json.formattedDate }}\n\n",
+        "options": {
+          "systemMessage": "=Sos un asistente que responde consultas de clientes sobre el inventario de iPhones. Tu trabajo es buscar si hay coincidencias con el modelo de iPhone que menciona el usuario.\n\nAccedés a una tabla de productos con estas columnas: MODELO, PRECIO EFECTIVO PESOS, COLORES DISPONIBLES, EN 6 CUOTAS FIJAS DE, EN 12 CUOTAS FIJAS DE.\n\nSi el usuario pregunta: “¿Tenés iPhone 13?” o “¿Hay 15 Pro Max?”, buscás si alguna fila contiene ese modelo (aunque no lo diga exacto) pero si es pro tiene que buscar pro y si no dice pro es porque no lo tenemos.\n\nSi encontrás el producto:\n- Respondé con nombre exacto del modelo.\n- Precio en pesos.\n- Colores.\n- Precio en 6 y 12 cuotas.\n\nSi NO lo encontrás:\n- Decí que no está disponible por ahora.\n- Ofrecé sugerencias parecidas o que te diga qué modelo le interesa.\n\nRespondé siempre en español neutro, de manera clara, cálida y útil.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1000,
+        -360
+      ],
+      "id": "9c7bed77-34e4-4070-9b6f-3a4f4d902ff4",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1020,
+        -180
+      ],
+      "id": "0b3f69ec-e262-4de3-b474-b2662ca0d393",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "Lh99AKtYwprqxEY6",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -40,
+        240
+      ],
+      "id": "2fe97d75-4b51-4837-a0f8-57660e1f8a8d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "Lh99AKtYwprqxEY6",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "prompt": "Instructions:\n--------------\n{instructions}\n--------------\nCompletion:\n--------------\n{completion}\n--------------\n\nAbove, the Completion did not satisfy the constraints given in the Instructions.\nError:\n--------------\n{error}\n--------------\n\nPlease try again. Please only respond with an answer that satisfies the constraints laid out in the Instructions:"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        120,
+        260
+      ],
+      "id": "ffcfe83d-b2b5-4b2a-85e3-0da12beba370",
+      "name": "Auto-fixing Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        120,
+        380
+      ],
+      "id": "354022e5-f2a8-4f2f-a4f5-419ba2fd0641",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "Lh99AKtYwprqxEY6",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"response\": {\n    \"part_1\": \"Contenido de la primera parte de la respuesta.\",\n    \"part_2\": \"Contenido de la segunda parte de la respuesta.\",\n    \"part_3\": \"Contenido de la tercera parte de la respuesta (opcional).\",\n  \"part_4\": \"Contenido de la tercera parte de la respuesta (opcional).\"}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        280,
+        380
+      ],
+      "id": "e9754f2f-cd5a-41e8-947e-dcffaa1f1386",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Respuesta a formatear: {{ $json.output }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        0,
+        80
+      ],
+      "id": "9f7f405a-9fb7-4c81-b1b3-1106dd1373bd",
+      "name": "Basic LLM Chain",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "notesInFlow": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.from.id }}",
+        "text": "={{ $('Basic LLM Chain').item.json.output.response.part_2 }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1000,
+        20
+      ],
+      "id": "e839a6c8-c332-4c25-b24a-e1ac8f5d8a75",
+      "name": "Send a text message1",
+      "webhookId": "a5b18a01-954c-408e-9742-b32ff4e2c1b9",
+      "credentials": {
+        "telegramApi": {
+          "id": "kMg3FAsGZxeihUhk",
+          "name": "woolfia_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        780,
+        20
+      ],
+      "id": "0170d2ee-c7f8-4c46-813c-c129820f2c38",
+      "name": "Wait",
+      "webhookId": "6b69b67c-7db4-4180-b9bd-ebe93c80a4d0"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8fb380b0-63cd-4bb9-a95b-0b7995eeb71c",
+              "leftValue": "={{ $('Basic LLM Chain').item.json.output.response.part_3 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1180,
+        40
+      ],
+      "id": "338954ce-ffed-4548-aea3-1c2e3c764ba0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1380,
+        -100
+      ],
+      "id": "bbef69b4-a73f-4d8f-b595-91c2c719939f",
+      "name": "Wait1",
+      "webhookId": "f791de17-fb2d-4f43-afaf-50a1dae2ce77"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.from.id }}",
+        "text": "={{ $('Basic LLM Chain').item.json.output.response.part_3 }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1580,
+        -100
+      ],
+      "id": "5a70fe8e-b19e-4ccf-b368-707a80c651ff",
+      "name": "Send a text message2",
+      "webhookId": "a5b18a01-954c-408e-9742-b32ff4e2c1b9",
+      "credentials": {
+        "telegramApi": {
+          "id": "kMg3FAsGZxeihUhk",
+          "name": "woolfia_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8fb380b0-63cd-4bb9-a95b-0b7995eeb71c",
+              "leftValue": "={{ $('Basic LLM Chain').item.json.output.response.part_3 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1780,
+        40
+      ],
+      "id": "c22832a8-7cf0-4b94-8cbb-86d7b6ca3595",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1980,
+        -80
+      ],
+      "id": "74672629-1334-49aa-93ce-63cf0063522d",
+      "name": "Wait2",
+      "webhookId": "f791de17-fb2d-4f43-afaf-50a1dae2ce77"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.from.id }}",
+        "text": "={{ $('Basic LLM Chain').item.json.output.response.part_4 }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2180,
+        -80
+      ],
+      "id": "b74657eb-fdc2-4cf7-b910-643f35ac8ed6",
+      "name": "Send a text message3",
+      "webhookId": "a5b18a01-954c-408e-9742-b32ff4e2c1b9",
+      "credentials": {
+        "telegramApi": {
+          "id": "kMg3FAsGZxeihUhk",
+          "name": "woolfia_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.from.id }}",
+        "text": "={{ $json.output.response.part_1 }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        520,
+        0
+      ],
+      "id": "63b08a28-c78d-46ef-859a-5b46e55449a0",
+      "name": "Send a text message",
+      "webhookId": "4df336e1-fe5d-4628-8049-f0057afded1a",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "telegramApi": {
+          "id": "kMg3FAsGZxeihUhk",
+          "name": "woolfia_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=",
+        "text": "=derrame cacal",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        600,
+        240
+      ],
+      "id": "179f7253-47dc-46d1-b276-f696147b3cb2",
+      "name": "Send a text message5",
+      "webhookId": "4df336e1-fe5d-4628-8049-f0057afded1a",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "telegramApi": {
+          "id": "kMg3FAsGZxeihUhk",
+          "name": "woolfia_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=",
+        "text": "=No encuentro ese producto disponible",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -540,
+        -100
+      ],
+      "id": "ecccb939-f982-417b-8443-ec984fa37594",
+      "name": "Send a text message6",
+      "webhookId": "4df336e1-fe5d-4628-8049-f0057afded1a",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "telegramApi": {
+          "id": "kMg3FAsGZxeihUhk",
+          "name": "woolfia_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Esta herramienta busca productos en la hoja de cálculo de inventario de la empresa. Úsala cuando el usuario pregunte por información de un producto o stock. La entrada debe ser el nombre exacto del producto a buscar.",
+        "documentId": {
+          "__rl": true,
+          "value": "14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs",
+          "mode": "list",
+          "cachedResultName": "APPLE LISTA ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "iPhone",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -720,
+        -180
+      ],
+      "id": "3de18b31-3f0c-4944-b723-61bb2a100d51",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tW8OZJpmAXYj12ni",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "*"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -3320,
+        280
+      ],
+      "id": "3d5b33de-7c0f-4ec9-90e9-10fd82656178",
+      "name": "Telegram Trigger1",
+      "webhookId": "9e64a3f8-df2d-4e82-bcda-37cbce7a68cd",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "kMg3FAsGZxeihUhk",
+          "name": "woolfia_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e0d8b6ba-328c-4505-802a-d363a7d55b04",
+              "leftValue": "={{ !!$json.message.voice.file_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3080,
+        280
+      ],
+      "id": "55803e7d-0d0a-4af0-9c9b-4eb7a25c7f4e",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{$json[\"message\"][\"voice\"][\"file_id\"]}}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -2820,
+        -40
+      ],
+      "id": "33bc395b-45f0-4da5-8cd7-c2168c98c545",
+      "name": "Get a file",
+      "webhookId": "db961e53-28c9-44e8-97b6-f629485e06d8",
+      "credentials": {
+        "telegramApi": {
+          "id": "kMg3FAsGZxeihUhk",
+          "name": "woolfia_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.fileUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "audio"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2440,
+        -40
+      ],
+      "id": "41f890db-a3dd-43e1-b58f-1acedc7b730b",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst token = '7700454001:AAFyakY7EOe2GtKVliIbIlIwtrRfgV_99Bk';\nconst filePath = item.result?.file_path;\n\nif (!filePath) {\n  throw new Error('No se encontró el file_path');\n}\n\nconst fileUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;\n\nreturn [{\n  json: {\n    fileUrl,\n    mimeType: 'audio/ogg',\n    fileName: 'audio.ogg'  \n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2620,
+        -40
+      ],
+      "id": "c6964576-7ce6-4201-b5d4-87043e4c75b2",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "binaryPropertyName": "=audio",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -2260,
+        -40
+      ],
+      "id": "4717cb92-4529-4fc5-8cf9-7874e1d9a029",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "3LvxJoyXZmf1lJLX",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"text\": \"{{ $json.text }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2060,
+        -40
+      ],
+      "id": "3b6557be-e80e-402c-9e93-e12e4571564f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger1').item.json.message.from.id }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -900,
+        -140
+      ],
+      "id": "2b3e4bb3-cba5-4a5e-b62e-817b82633b51",
+      "name": "Simple Memory1",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Tu tarea es clasificar el siguiente mensaje del usuario en una de estas tres categorías exclusivas:\n\n- iphone: si la persona menciona iPhone o cualquier modelo de Apple relacionado exclusivamente con iPhone.\n- horario: si consulta horarios de atención, días, turnos, dirección o formas de pago (tarjeta, efectivo, dólares, transferencias), pero sólo si el mensaje NO contiene nombres o modelos específicos de marcas o productos.\n- marca: si menciona marcas o productos como Samsung, Xiaomi, Galaxy, Redmi, Note, parlantes JBL, PC, MacBook, iPad, accesorios u otros productos que no sean iPhone.\n\nRespondé solo con una palabra exacta: iphone, horario o marca. No agregues nada más.\n\nEjemplos:\n\n\"¿Cuánto cuesta el iPhone 13?\" → iphone  \n\"¿A qué hora abren los sábados?\" → horario  \n\"¿Qué métodos de pago tienen?\" → horario  \n\"¿Qué modelos de Samsung tienen?\" → marca  \n\"¿Tienen el Xiaomi Redmi Note 13?\" → marca  \n\"¿Qué diferencias hay entre iPhone 13 y 14?\" → iphone  \n\"¿Cuál es el precio de la MacBook Air?\" → marca  \n\"¿Qué parlantes JBL están disponibles?\" → marca  \n\"¿Dónde está la tienda?\" → horario  \n\"¿Qué promociones hay para Apple?\" → marca  \n\"¿Qué precio tiene el Galaxy A16?\" → marca  \n\"¿Venden Redmi Note 12?\" → marca\n\nMensaje: {{ $('Telegram Trigger1').item.json.message.text }}\n\n\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -1880,
+        220
+      ],
+      "id": "1c448809-39bc-41c6-8c64-86541f6b9e57",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "3LvxJoyXZmf1lJLX",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.content }}",
+                    "rightValue": "iphone",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "252efc59-7daa-48ac-a43e-b6b00586591f"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "256b9734-4f13-4b88-a064-6982963588e1",
+                    "leftValue": "={{ $json.message.content }}",
+                    "rightValue": "horario",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f4280855-f322-4c2f-a49a-bb66d07c4d20",
+                    "leftValue": "={{ $json.message.content }}",
+                    "rightValue": "marca",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1500,
+        220
+      ],
+      "id": "34c8af7b-90af-4538-b04d-efc7004e4315",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=mensaje: {{ $('Telegram Trigger1').item.json.message.text }}\naudio: {{ $json.text }}\nfecha: {{ $json.formattedDate }}\n\n",
+        "options": {
+          "systemMessage": "=Actuás como un asistente virtual de una tienda. Respondés consultas basadas exclusivamente en los datos de una tabla de Excel que contiene:\n\n- La fila 11 tiene los horarios de atención y dirección del local.\n- La fila 12 puede tener detalles adicionales sobre ubicación u horarios.\n- Las filas siguientes contienen métodos de pago aceptados, con tarjetas, cuotas disponibles y el porcentaje de interés por cada una.\n\nReglas:\n\n1. Siempre incluí los horarios de atención que aparecen en las filas 11 y 12.\n2. Si el usuario pregunta por medios de pago, detallá las tarjetas aceptadas, cuotas disponibles e intereses, agrupando las tarjetas que tienen los mismos recargos en una misma frase.\n3. Si varias tarjetas comparten los mismos porcentajes en cuotas, nombralas juntas (por ejemplo: \"Visa y Master ofrecen 3 cuotas con 55% de recargo\").\n4. Si el usuario pregunta por la dirección, respondé con el dato exacto de la primera columna de la fila 11 o 12.\n5. Respondé con amabilidad y claridad, en español neutro. No muestres respuestas en formato JSON. Nunca inventes información.\n\nEjemplo esperado para medios de pago:\n\n**Usuario:** ¿Qué medios de pago aceptan?\n\n**Respuesta esperada:**  \n\"Aceptamos efectivo en pesos y dólares (incluyendo dólares azules). En el caso de dólares cara grande, se aplica un adicional de $2000 por cada billete de cien, y para los de cara chica, $5000.  \nTransferencias bancarias tienen un recargo del 10,5% (incluye IVA).  \nTarjetas bancarizadas como Visa, Master y Cabal ofrecen 3 cuotas con 55% de recargo, 6 cuotas con 65% y 12 cuotas con 85%.  \nTuya ofrece 3 cuotas con 50%, 5 cuotas con 55%, y hasta 18 cuotas con un recargo del 80%.  \nNaranja Común permite hasta 12 cuotas, por ejemplo: 3 cuotas con 55%, 5 con 60% y 12 con 80%.  \nAdemás, aceptamos tarjetas de crédito de financiera con 18% de recargo, PayPal con 15%, y criptomonedas (USDT) sin comisión.  \nNuestro horario de atención es [fila 11 y 12].\"\n\nEsperá la consulta del usuario y respondé únicamente en función de los datos del Excel que te proporciona el sistema.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -920,
+        200
+      ],
+      "id": "93914ab9-b0b7-498a-99a2-5f1184eb2171",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -980,
+        380
+      ],
+      "id": "1e288681-76e1-4d4c-a8df-3d4d06078a40",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "Lh99AKtYwprqxEY6",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Esta herramienta busca productos en la hoja de cálculo de inventario de la empresa. Úsala cuando el usuario pregunte por información de un producto o stock. La entrada debe ser el nombre exacto del producto a buscar.",
+        "documentId": {
+          "__rl": true,
+          "value": "14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs",
+          "mode": "list",
+          "cachedResultName": "APPLE LISTA ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 634496475,
+          "mode": "list",
+          "cachedResultName": "MEDIOS DE PAGO",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit#gid=634496475"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -620,
+        340
+      ],
+      "id": "0383056a-ed04-40e0-9fb1-ee385776c20b",
+      "name": "Get row(s) in sheet in Google Sheets1",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tW8OZJpmAXYj12ni",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger1').item.json.message.from.id }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -800,
+        380
+      ],
+      "id": "54e4925c-ebeb-4ba6-acda-9085e90e08e5",
+      "name": "Simple Memory",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=mensaje: {{ $('Telegram Trigger1').item.json.message.text }}\naudio: {{ $json.text }}\nfecha: {{ $json.formattedDate }}\n\n",
+        "options": {
+          "systemMessage": "=Sos un asistente experto en productos tecnológicos y atención al cliente para una tienda. Tenés acceso a varias hojas con información actualizada sobre productos, precios, métodos de pago y horarios.\n\nLas hojas que consultás son:\n\nSAMSUNG/XIAOMI\n\nPC & TABLETS (macbook, notebook, ipad)\n\nACCESORIOS\n\nPARLANTES/PS5 (jbl)\n\nGAFAS\n\nTambién tenés datos sobre horarios y métodos de pago.\n\nCuando un usuario te consulte:\n\nBuscá en todas las hojas si el modelo está disponible.\n\nSi lo encontrás, respondé sólo con la info esencial:\n\nModelo exacto.\n\nPrecio contado en dólares y pesos.\n\nColores disponibles.\n\nOpciones de financiación con cuotas y montos fijos (resumí las cuotas más comunes, no todas).\n\nSi pregunta por métodos de pago o financiación, respondé con detalles claros.\n\nSi pregunta por horarios o dirección, respondé con la info actualizada.\n\nSi no encontrás el producto, indicá amablemente que no está disponible.\n\nRespondé siempre en español neutro, claro, cordial y breve.\n\nEjemplo de respuesta breve para un modelo Samsung o Galaxy:\n\n\"El Galaxy A16 4/128 GB está disponible en colores gris y negro. Precio contado: 286.000 pesos o 220 dólares. Financiación con tarjeta Naranja en 12 cuotas fijas de $42.900 y con tarjeta Visa/Master en 6 cuotas fijas de $78.650. Nuestro horario es lunes a viernes de 10 a 19 hs y sábados de 10 a 13 hs. ¿Querés que te ayude con algo más?\"\n\nNo agregues información innecesaria ni textos extensos. Sé concreto y amable.\n\nMensaje del usuario: {{ $json[\"message\"] }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1000,
+        760
+      ],
+      "id": "b2a87dce-083e-4906-bceb-6592206394d6",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1160,
+        980
+      ],
+      "id": "776257fe-22ab-4f4e-91bf-c3a7aec02f9f",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "Lh99AKtYwprqxEY6",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Direccion del local y horarios de atención, medios de pago.\n**funciona perfecto**",
+        "height": 120,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1080,
+        60
+      ],
+      "id": "22ef1c78-b3af-4896-a8b3-70b2d64a1d3b",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Articulos Apple, iphone\n\n**funciona perfecto**\n\n",
+        "height": 100,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1200,
+        -420
+      ],
+      "id": "4c2ab0be-1fe4-481a-b1e1-166bf12b8f11",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "// texto consultado (mensaje del usuario)\nconst textoConsulta = $json[\"message\"]?.content?.toLowerCase() || \"\";\n\n// nombre de la hoja destino, definido en el nodo Set anterior\nconst hojaDestino = $json[\"hoja_destino\"] || \"\";\n\n// datos de la hoja que vinieron del nodo Google Sheets (con todos los productos)\nconst productos = items; // aquí vienen todos los productos del Google Sheets correspondiente\n\n// Buscamos el producto que coincida (contenga en su modelo alguna palabra del mensaje)\nconst resultado = productos.filter(item => {\n  const modelo = (item.json.MODELO || \"\").toLowerCase();\n  return textoConsulta.includes(modelo) || modelo.includes(textoConsulta);\n});\n\nif (resultado.length === 0) {\n  return [{ json: { respuesta: \"Disculpa, no encontré el producto que consultás en nuestra base de datos.\" } }];\n}\n\n// Si encontró, devolvemos los datos del primer producto que coincida \nconst producto = resultado[0].json;\n\n// Armás la respuesta con los datos que necesites\nconst respuesta = `El modelo ${producto.MODELO} está disponible. Precio contado: ${producto[\"PRECIO EFECTIVO PESOS\"] || producto[\"PRECIO CONTADO PESOS\"]} pesos. Colores disponibles: ${producto[\"COLOR DISPONIBLE\"] || producto[\"COLORES DISPONIBLES\"] || \"No especificado\"}.`;\n\nreturn [{ json: { respuesta } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1480,
+        760
+      ],
+      "id": "5d2530c6-035a-4ddc-b3f5-112fe7b1b1a5",
+      "name": "set hojas sheet"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"nodes\": [\n    {\n      \"parameters\": {\n        \"values\": {\n          \"string\": [\n            {\n              \"name\": \"hoja_destino\",\n              \"value\": \"={{ $json[\\\"message\\\"]?.content?.toLowerCase().includes(\\\"iphone\\\") || $json[\\\"message\\\"]?.content?.toLowerCase().includes(\\\"apple\\\") ? \\\"IPHONE\\\" : $json[\\\"message\\\"]?.content?.toLowerCase().match(/samsung|xiaomi|galaxy|redmi|note/) ? \\\"SAMSUNG/XIAOMI\\\" : $json[\\\"message\\\"]?.content?.toLowerCase().match(/macbook|ipad|notebook|tablet|pc|computadora|laptop/) ? \\\"PC & TABLETS\\\" : $json[\\\"message\\\"]?.content?.toLowerCase().match(/airpods|watch|cargador|lapiz|pencil|teclado|apple tv|accesorio/) ? \\\"ACCESORIOS\\\" : $json[\\\"message\\\"]?.content?.toLowerCase().match(/jbl|parlante|echo|ps5|ps4|nintendo|joystick|switch/) ? \\\"PARLANTES/PS5\\\" : $json[\\\"message\\\"]?.content?.toLowerCase().match(/gafa|prada|lente|anteojo/) ? \\\"GAFAS\\\" : \\\"\\\" }}\"\n            }\n          ]\n        },\n        \"options\": {}\n      },\n      \"name\": \"Set hoja destino\",\n      \"type\": \"n8n-nodes-base.set\",\n      \"typeVersion\": 1,\n      \"position\": [\n        500,\n        300\n      ]\n    }\n  ]\n}\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1940,
+        760
+      ],
+      "id": "f554e7b6-a774-4c6a-9697-18a4f3e45d9b",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "content": "tomamos segun el contenido de marca, samsung, macbook, ipad y creamos un json para que luego lo lleve a la pagina de la hoja de calculo que ncesitamos ",
+        "height": 120,
+        "width": 250,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2020,
+        920
+      ],
+      "id": "01772a67-5b1b-4356-8ae8-7100f26cad86",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "un nodo Set que con una expresión JS evalúa el mensaje de usuario y define a qué hoja debe ir a buscar el producto.\n\nEjemplo: si dice “Galaxy”, asigna \"SAMSUNG/XIAOMI\"; si dice “MacBook”, asigna \"PC & TABLETS\", etc.\n\nVariable que asignás: hoja_destino",
+        "height": 220,
+        "width": 330,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1580,
+        540
+      ],
+      "id": "199bdcb7-de28-472d-85dc-825c08d97640",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Esta herramienta busca productos en la hoja de cálculo de inventario de la empresa. Úsala cuando el usuario pregunte por información de un producto o stock. La entrada debe ser el nombre exacto del producto a buscar.",
+        "documentId": {
+          "__rl": true,
+          "value": "14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs",
+          "mode": "list",
+          "cachedResultName": "APPLE LISTA ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 828931792,
+          "mode": "list",
+          "cachedResultName": "GAFAS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit#gid=828931792"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -360,
+        980
+      ],
+      "id": "fcf2da2e-2433-4a35-beb1-7fc6bff1a4b5",
+      "name": "Get row(s) in sheet in Google Sheets6",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tW8OZJpmAXYj12ni",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Esta herramienta busca productos en la hoja de cálculo de inventario de la empresa. Úsala cuando el usuario pregunte por información de un producto o stock. La entrada debe ser el nombre exacto del producto a buscar.",
+        "documentId": {
+          "__rl": true,
+          "value": "14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs",
+          "mode": "list",
+          "cachedResultName": "APPLE LISTA ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1118174001,
+          "mode": "list",
+          "cachedResultName": "PARLANTES/PS5",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit#gid=1118174001"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -500,
+        1000
+      ],
+      "id": "a65931b2-8cbf-48ca-a8bd-35569443046f",
+      "name": "Get row(s) in sheet in Google Sheets5",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tW8OZJpmAXYj12ni",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Esta herramienta busca productos en la hoja de cálculo de inventario de la empresa. Úsala cuando el usuario pregunte por información de un producto o stock. La entrada debe ser el nombre exacto del producto a buscar.",
+        "documentId": {
+          "__rl": true,
+          "value": "14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs",
+          "mode": "list",
+          "cachedResultName": "APPLE LISTA ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 168131271,
+          "mode": "list",
+          "cachedResultName": "PC & TABLET",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit#gid=168131271"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -820,
+        1040
+      ],
+      "id": "be534a9b-1dd1-41d8-b304-e55170647842",
+      "name": "Get row(s) in sheet in Google Sheets4",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tW8OZJpmAXYj12ni",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Esta herramienta busca productos en la hoja de cálculo de inventario de la empresa. Úsala cuando el usuario pregunte por información de un producto o stock. La entrada debe ser el nombre exacto del producto a buscar.",
+        "documentId": {
+          "__rl": true,
+          "value": "14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs",
+          "mode": "list",
+          "cachedResultName": "APPLE LISTA ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1831148316,
+          "mode": "list",
+          "cachedResultName": "ACCESORIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit#gid=1831148316"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -640,
+        1000
+      ],
+      "id": "de6d7a10-2105-4c6c-a42f-77bb1f9d0d6e",
+      "name": "Get row(s) in sheet in Google Sheets3",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tW8OZJpmAXYj12ni",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Esta herramienta busca productos en la hoja de cálculo de inventario de la empresa. Úsala cuando el usuario pregunte por información de un producto o stock. La entrada debe ser el nombre exacto del producto a buscar.",
+        "documentId": {
+          "__rl": true,
+          "value": "14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs",
+          "mode": "list",
+          "cachedResultName": "APPLE LISTA ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14xxgcegJBIZasr2LrcWrEUcj8EbkzidMO4m2B8nmAIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{$json[\"hoja_destino\"]}} ",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -980,
+        1040
+      ],
+      "id": "956087a4-8ddf-464d-9c42-241991576eca",
+      "name": "Get row(s) in sheet in Google Sheets2",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tW8OZJpmAXYj12ni",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "puede llegar a haber algun error minimo, pero ya esta completo y funcional esta parte \n",
+        "height": 100,
+        "width": 190,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -940,
+        620
+      ],
+      "id": "58f97a13-9968-43ce-9aee-cf2314216e87",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "Date & Time2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time2": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message3": {
+      "main": [
+        []
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ],
+      "main": [
+        [
+          {
+            "node": "Send a text message6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger1": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set hojas sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "set hojas sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets6": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets5": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets4": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets3": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "efddef46-4a8a-48fa-a800-a78fa5e011c6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "70dc013ba41efbe7af92c41c4e36e8c1fa378fee65ecde345ed435fe085f8a3b"
+  },
+  "id": "67EBnHEYCIkNwhb0",
+  "tags": []
+}
